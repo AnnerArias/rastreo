@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "express": "^4.21.1",
+    "pdfkit": "^0.15.0",
+    "puppeteer": "^23.6.0",
+    "umbrellajs": "^3.3.3"
+  }
+}
