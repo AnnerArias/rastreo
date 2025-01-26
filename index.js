@@ -19,17 +19,21 @@ app.get('/:value', async (req, res) => {
     try {
         const browser = await puppeteer.launch({ 
             slowMo: 200,
-            // headless: false,
-            args: ['--disable-web-security']
+            headless: false,
+            args: ['--disable-web-security', '--no-sandbox']
         });
         const page = await browser.newPage();
         await page.setViewport({ width: 1920, height: 1080 });
         console.log('Navegando a la página...');
         await page.goto('https://cotransagroup.com/container-tracking/', { waitUntil: 'networkidle2', timeout: 60000 });
 
-        console.log('Aceptando cookies...');
-        await page.waitForSelector('#cookie21AlertAcceptAll', { visible: true, timeout: 10000 });
-        await page.click('#cookie21AlertAcceptAll');
+        console.log('Aceptando cookies si el selector existe...');
+        const cookieButton = await page.$('#cookie21AlertAcceptAll');
+        if (cookieButton) {
+            await page.click('#cookie21AlertAcceptAll');
+        } else {
+            console.log('El botón de cookies no se encontró, omitiendo este paso.');
+        }
 
         console.log('Esperando el iframe...');
         await page.waitForSelector('#container-tracking-wrapper iframe', { visible: true, timeout: 60000 });
@@ -63,6 +67,9 @@ app.get('/:value', async (req, res) => {
         } else {
             throw new Error('Elemento shadowRoot no encontrado');
         }
+
+        //document.querySelector("#tracking_system_root").shadowRoot.querySelector("#app-root > div.jNVSgr > div.J_fGwb > div > div > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-tile-pane > div");
+
     } catch (error) {
         console.error(error);
         res.status(500).send('Ocurrió un error');
